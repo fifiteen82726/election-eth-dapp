@@ -23,10 +23,10 @@ contract Election {
         chairman = msg.sender;
     }
 
+    // airline register
     function register() public payable{
-        // let user register
-        // chairman.transfer(1 ether);
-        require(msg.value >= 10.0);
+        // at least deposit 1000 wei
+        require(msg.value >= 1000.0);
         member[msg.sender] = msg.value;
     }
 
@@ -36,8 +36,8 @@ contract Election {
     }
 
     function unregister(address payable account) public onlyChairman() {
-        // cost 1 eth for unregister fee
-        account.transfer(member[account] -1);
+        // cost 100 wei for unregister fee
+        account.transfer(member[account] -100);
         delete member[account];
     }
 
