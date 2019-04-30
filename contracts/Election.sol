@@ -1,30 +1,58 @@
 pragma solidity ^0.5.0;
 
 contract Election {
-    // model a candidate
-    // Read candidate
-    struct Candidate {
-      uint id;
-      string name;
-      uint voteCount;
+    struct UserRequest {
+      bool isExecute;
+      // Details of hash(request data), details can be reffer in the database
+      // Store the hash data here to be validated for the further usage
+      string hashData;
     }
+    mapping(uint => UserRequest) public userRequest;
+    mapping(address => uint) public member;
 
-    // Store candidate, id to candidate stuct
-    // set it to public, it generates fetch function
-    mapping(uint => Candidate) public candidates;
+    // store requestID to its hashValue
+    mapping(uint => string) public airlineRequest;
 
-    // Store Candidates Court
-    uint public candidatesCount;
+    // store requestID to it's executed or not
+    mapping(uint => bool) public airlineResponse;
+    // chairman account, let airline deposit to become a member
+    address public chairman;
 
     // Constructor
     constructor () public {
-      addCandidate('Coda');
-      addCandidate('Alice');
+        chairman = msg.sender;
     }
 
-    // _name means private varaible
-    function addCandidate(string memory _name) private {
-      candidatesCount ++;
-      candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
+    function register() public payable{
+        // let user register
+        // chairman.transfer(1 ether);
+        require(msg.value >= 10.0);
+        member[msg.sender] = msg.value;
+    }
+
+    modifier onlyChairman() {
+        require (msg.sender == chairman);
+        _;
+    }
+
+    function unregister(address payable account) public onlyChairman() {
+        // cost 1 eth for unregister fee
+        account.transfer(member[account] -1);
+        delete member[account];
+    }
+
+    // create a record to store the result of new order's hash data, for confidencial purpose
+    function createOrderRequest(uint requestID, bool isExecute, string memory hashData) public{
+        userRequest[requestID] = UserRequest(isExecute, hashData);
+    }
+
+    // create a record when airline a transfer a user's order to airline b
+    function request(uint requestID, string memory hashData) public{
+        airlineRequest[requestID] = hashData;
+    }
+
+    // create a record when airline b decide the request from airline a, may be executed or non-executed
+    function response(uint requestID, bool isExecute) public{
+        airlineResponse[requestID] = isExecute;
     }
 }
