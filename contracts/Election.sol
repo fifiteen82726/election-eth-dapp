@@ -44,6 +44,7 @@ contract Election {
     // create a record to store the result of new order's hash data, for confidencial purpose
     function createOrderRequest(uint requestID, bool isExecute, string memory hashData) public{
         userRequest[requestID] = UserRequest(isExecute, hashData);
+        response(requestID, isExecute);
     }
 
     // create a record when airline a transfer a user's order to airline b
